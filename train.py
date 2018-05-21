@@ -1,3 +1,6 @@
+'''This script applies some clustering algorithms to data and returns the score for each algorithm
+'''
+
 import numpy as np
 import pickle
 from sklearn.multiclass import OneVsRestClassifier
