@@ -10,16 +10,20 @@ from TurkishStemmer import TurkishStemmer
 from gensim.models import Word2Vec
 from random import shuffle
 
-# Load previously trained word vectors
-word_vectors = get_word_vectors('./model_data')
 
-# Get similar positive and negatice words
-similar_pos, similar_neg = get_similar_words()
+def prep(word_list):
+    '''Returns preprocessed word_list'''
+    stemmer = TurkishStemmer()
+    word_list = [stemmer.stem(x) for x in word_list]
+    word_list = [x.replace('ğ','g').replace('ı','i').replace('ç','c').replace('ş','s').replace('ü','u').replace('ö','o') for x in word_list]
+    return word_list
+
 
 def get_word_vectors(model_file):
     '''Returns previously trained word vectors'''
     model = Word2Vec.load(model_file)
     return model.wv
+
 
 def get_similar_words():
     '''Returns previously trained word vectors'''
@@ -45,16 +49,18 @@ def get_similar_words():
 
     return (similar_pos, similar_neg)
 
-def prep(word_list):
-    '''Returns preprocessed word_list'''
-    stemmer = TurkishStemmer()
-    word_list = [stemmer.stem(x) for x in word_list]
-    word_list = [x.replace('ğ','g').replace('ı','i').replace('ç','c').replace('ş','s').replace('ü','u').replace('ö','o') for x in word_list]
-    return word_list
+
+# Load previously trained word vectors
+word_vectors = get_word_vectors('./model_data')
+
+# Get similar positive and negatice words
+similar_pos, similar_neg = get_similar_words()
+
 
 def create_dictionary(all_tokens):
     global  word_vectors
     return {k:word_vectors[k] for k in all_tokens if k in word_vectors}
+
 
 def create_average_vectors(tokens, vect_dict):
     # Returns average of the vectors of the given tokens
@@ -66,28 +72,28 @@ def create_average_vectors(tokens, vect_dict):
 
     return average
 
+
 def calc_pos_neg(tokens, word_set):
     i = 0
     for t in tokens:
         if t in word_set:
             i+=1
     return i/len(tokens)
-    
+ 
+
 def calc_positivity(tokens):
     return calc_pos_neg(tokens, similar_pos)    
+
 
 def calc_negativity(tokens):
     return calc_pos_neg(tokens, similar_neg)
 
+
 def partition_data(data):
-    # Split the data into train and test
-    train_data = data[:9*len(data)//10]
-    test_data = data[9*len(data)//10:]
-    X_train = np.asarray([x[0] for x in train_data])
-    Y_train = np.asarray([x[1] for x in train_data])
-    X_test = np.asarray([x[0] for x in test_data])
-    Y_test = np.asarray([x[1] for x in test_data])
-    return (X_train, Y_train, X_test, Y_test)
+    X = np.asarray([x[0] for x in data])
+    y = np.asarray([x[1] for x in data])
+    return (X, y)
+
 
 def main():
     all_data = []
@@ -103,9 +109,10 @@ def main():
             avg_vec = np.append(avg_vec, calc_negativity(d[0]))
             data.append((avg_vec, d[1]))
     shuffle(data)
-    (X_train, Y_train, X_test, Y_test) = partition_data(data)
+    (X, y) = partition_data(data)
     with open('train_file', 'wb') as f:
-        pickle.dump((X_train, Y_train, X_test, Y_test), f)
+        pickle.dump((X, y), f)
+
 
 if __name__ == "__main__":
     start = time.time()
