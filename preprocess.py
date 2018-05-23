@@ -33,7 +33,7 @@ def read_file(file_path, all_tokens,sentiment=None):
     f = open(file_path, 'r')
     lines = f.readlines()
     sentences = [x.split('\t\t\t')[1] for x in lines]
-    if sentiment:
+    if sentiment is not None:
         dataset = [(tokenize_and_stem(s, all_tokens),sentiment) for s in sentences]
     else: # For test sets without sentiment
         dataset = [tokenize_and_stem(s, all_tokens) for s in sentences]
@@ -44,10 +44,10 @@ def get_preprocessed_data(file_names, sentiments = None):
     all_data = []
     if sentiments:
         for file_name, sentiment in zip(file_names, sentiments):
-            all_data.append(read_file(file_name, all_tokens, sentiment))
+            all_data += (read_file(file_name, all_tokens, sentiment))
     else:
         for file_name in file_names:
-            all_data.append(read_file(file_name , all_tokens))
+            all_data += (read_file(file_name , all_tokens))
     return all_tokens, all_data
 
 def main():

@@ -8,13 +8,14 @@ import multiprocessing # for training the model on multiple cpu's
 from nltk.tokenize import TweetTokenizer
 from TurkishStemmer import TurkishStemmer
 from gensim.corpora import WikiCorpus
-from gensim import utils
+
 from gensim.models import Word2Vec
 from gensim.models.word2vec import LineSentence
 # characters to be removed from tweets
 from utils import bad_chars, WORD2VEC_MODEL_FILE_PATH, WIKI_FILE_PATH, TOKENIZED_WIKI_FILE_PATH
+from gensim import utils
 
-def tokenize_and_stem(sentence):
+def tokenize_and_stem(sentence,token_min_len=2,token_max_len=50,lower=True):
 	'''Tokenizes the given sentence and applies stemmer on each token'''
 	stemmer = TurkishStemmer()
 	tokenizer = TweetTokenizer()
@@ -37,7 +38,7 @@ def main():
 
 	# Train word2vec model and save it do disk
 	print("... Train word2vec model")
-	model = Word2Vec(LineSentence(tokenized_wiki_file), size=400, window=5, min_count=5, workers=multiprocessing.cpu_count())
+	model = Word2Vec(LineSentence(TOKENIZED_WIKI_FILE_PATH), size=400, window=5, min_count=5, workers=multiprocessing.cpu_count())
 	model.save(WORD2VEC_MODEL_FILE_PATH)
 
 if __name__ == "__main__":

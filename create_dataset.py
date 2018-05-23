@@ -56,8 +56,7 @@ def get_similar_words():
 # Get similar positive and negative words
 similar_pos, similar_neg = get_similar_words()
 
-def create_dictionary(all_tokens):
-    global  word_vectors
+def create_dictionary(all_tokens, word_vectors):
     return {k:word_vectors[k] for k in all_tokens if k in word_vectors}
 
 
@@ -94,7 +93,8 @@ def partition_data(data):
     return (X, y)
 
 def get_dataset(all_tokens, all_data):
-    vect_dict = create_dictionary(all_tokens)
+    global word_vectors
+    vect_dict = create_dictionary(all_tokens, word_vectors)
     data = []
     for d in all_data:
         avg_vec = create_average_vectors(d[0], vect_dict)
