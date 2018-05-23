@@ -1,14 +1,16 @@
 bad_chars = '.:",;()\'<>^&#'
-FOLDER_PATH = './data/'
-PREPROCESSED_TRAINING_FILE_PATH = FOLDER_PATH + "preprocessed_data"
-WORD2VEC_MODEL_FILE_PATH = FOLDER_PATH + "word2vec_model"
-DATASET_PATH = FOLDER_PATH + "dataset"
-POSITIVE_WORDS_PATH = FOLDER_PATH + "positives"
-NEGATIVE_WORDS_PATH = FOLDER_PATH + "negatives"
-ML_MODEL_PATH = FOLDER_PATH + "predictor_model"
-WIKI_FILE_PATH = FOLDER_PATH + "trwiki-20180101-pages-articles.xml.bz2"
-TEST_SET_PATH = "test"
+DATA_FOLDER_PATH = './data/'
+PREPROCESSED_TRAINING_FILE_PATH = DATA_FOLDER_PATH + "preprocessed_data"
+WORD2VEC_MODEL_FILE_PATH = DATA_FOLDER_PATH + "word2vec_model"
+DATASET_PATH = DATA_FOLDER_PATH + "dataset"
+POSITIVE_WORDS_PATH = DATA_FOLDER_PATH + "positives"
+NEGATIVE_WORDS_PATH = DATA_FOLDER_PATH + "negatives"
+ML_MODEL_PATH = DATA_FOLDER_PATH + "predictor_model"
+WIKI_FILE_PATH = DATA_FOLDER_PATH + "trwiki-20180101-pages-articles.xml.bz2"
 
-f = open('word_forms_stems_and_frequencies_full.txt', 'r')
-WORDS = {x.split()[0]:int(x.split()[-1]) for x in f.readlines() if not x.startswith('#') and x != '\n'}
+TRAIN_FOLDER_PATH = "./Train/"
+TRAIN_POSITIVE_PATH = TRAIN_FOLDER_PATH + "positive_train"
+TRAIN_NEGATIVE_PATH = TRAIN_FOLDER_PATH + "negative_train"
+TRAIN_NOTR_PATH = TRAIN_FOLDER_PATH + "notr_train"
 
+TEST_SET_PATH = TRAIN_FOLDER_PATH+"negative-train"

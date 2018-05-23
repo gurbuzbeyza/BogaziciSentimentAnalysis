@@ -11,11 +11,6 @@ from gensim.models import Word2Vec
 from random import shuffle
 from utils import PREPROCESSED_TRAINING_FILE_PATH, WORD2VEC_MODEL_FILE_PATH, DATASET_PATH, POSITIVE_WORDS_PATH, NEGATIVE_WORDS_PATH
 
-# Load previously trained word vectors
-word_vectors = get_word_vectors(WORD2VEC_MODEL_FILE_PATH)
-
-# Get similar positive and negative words
-similar_pos, similar_neg = get_similar_words()
 
 def prep(word_list):
     '''Returns preprocessed word_list'''
@@ -30,6 +25,10 @@ def get_word_vectors(model_file_path):
     model = Word2Vec.load(model_file_path)
     return model.wv
 
+# Load previously trained word vectors
+import pdb
+pdb.set_trace()
+word_vectors = get_word_vectors(WORD2VEC_MODEL_FILE_PATH)
 
 def get_similar_words():
     '''Returns previously trained word vectors'''
@@ -55,6 +54,9 @@ def get_similar_words():
 
     return (similar_pos, similar_neg)
 
+
+# Get similar positive and negative words
+similar_pos, similar_neg = get_similar_words()
 
 def create_dictionary(all_tokens):
     global  word_vectors
