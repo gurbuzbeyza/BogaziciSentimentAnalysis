@@ -26,8 +26,6 @@ def get_word_vectors(model_file_path):
     return model.wv
 
 # Load previously trained word vectors
-import pdb
-pdb.set_trace()
 word_vectors = get_word_vectors(WORD2VEC_MODEL_FILE_PATH)
 
 def get_similar_words():
