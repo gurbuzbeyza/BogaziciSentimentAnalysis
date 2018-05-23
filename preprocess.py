@@ -8,7 +8,7 @@ from nltk.tokenize import TweetTokenizer
 from TurkishStemmer import TurkishStemmer
 from gensim.models import Word2Vec
 # characters to be removed from tweets
-from utils import correction, bad_chars
+from utils import correction, bad_chars, PREPROCESSED_TRAINING_FILE_PATH
 from gensim import utils
 
 # Folder path for training files
@@ -18,9 +18,9 @@ all_tokens = set()
 stemmer = TurkishStemmer()
 tokenizer = TweetTokenizer()
 
-def tokenize_and_stem(sentence):
+def tokenize_and_stem(sentence, all_tokens):
     '''Tokenizes the given sentence and applies stemmer on each token'''
-    global all_tokens, stemmer, tokenizer
+    global stemmer, tokenizer
     sentence = utils.to_unicode(sentence.lower())
     tokens = tokenizer.tokenize(sentence)
     tokens = [stemmer.stem(x.strip(bad_chars)) for x in tokens if x != '' and not x.startswith('@')]
@@ -28,17 +28,31 @@ def tokenize_and_stem(sentence):
     all_tokens.update(tokens)
     return tokens
 
-def read_file(file_name, sentiment):
+def read_file(file_name, all_tokens,sentiment=None):
     '''Reads file with the specified file_name and returns preprocessed data'''
     f = open(path+file_name, 'r')
     lines = f.readlines()
     sentences = [x.split('\t\t\t')[1] for x in lines]
-    dataset = [(tokenize_and_stem(s),sentiment) for s in sentences]
+    if sentiment:
+        dataset = [(tokenize_and_stem(s, all_tokens),sentiment) for s in sentences]
+    else: # For test sets without sentiment
+        dataset = [tokenize_and_stem(s, all_tokens) for s in sentences]
     return dataset
 
+def get_preprocessed_data(file_names, sentiments = None):
+    all_tokens = []
+    all_data = []
+    if sentiments:
+        for file_name, sentiment in zip(file_names, sentiments):
+            all_data.append(read_file(file_name, all_tokens, sentiment))
+    else:
+        for file_name in file_names:
+            all_data.append(read_file(file_name , all_tokens))
+    return all_tokens, all_data
+
 def main():
-    all_data = read_file('positive-train',1) + read_file('notr-train',0) + read_file('negative-train',-1)
-    with open('preprocessed_data', 'wb') as f:
+    all_tokens, all_data = get_preprocessed_data(['positive-train', 'notr-train', 'negative-train'],[1,0,-1])
+    with open(PREPROCESSED_TRAINING_FILE_PATH, 'wb') as f:
         pickle.dump((all_tokens, all_data), f)
 
 if __name__ == "__main__":

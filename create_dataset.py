@@ -1,5 +1,5 @@
 '''
-This script creates training and test datasets from given training files.
+This script creates the dataset from given training files.
 It makes use of the pre-trained word2vec model.
 '''
 import sys
@@ -9,7 +9,13 @@ import pickle
 from TurkishStemmer import TurkishStemmer
 from gensim.models import Word2Vec
 from random import shuffle
+from utils import PREPROCESSED_TRAINING_FILE_PATH, WORD2VEC_MODEL_FILE_PATH, DATASET_PATH, POSITIVE_WORDS_PATH, NEGATIVE_WORDS_PATH
 
+# Load previously trained word vectors
+word_vectors = get_word_vectors(WORD2VEC_MODEL_FILE_PATH)
+
+# Get similar positive and negative words
+similar_pos, similar_neg = get_similar_words()
 
 def prep(word_list):
     '''Returns preprocessed word_list'''
@@ -19,9 +25,9 @@ def prep(word_list):
     return word_list
 
 
-def get_word_vectors(model_file):
+def get_word_vectors(model_file_path):
     '''Returns previously trained word vectors'''
-    model = Word2Vec.load(model_file)
+    model = Word2Vec.load(model_file_path)
     return model.wv
 
 
@@ -29,8 +35,8 @@ def get_similar_words():
     '''Returns previously trained word vectors'''
     global word_vectors
 
-    p = open('positives', 'r')
-    n = open('negatives', 'r')
+    p = open(POSITIVE_WORDS_PATH, 'r')
+    n = open(NEGATIVE_WORDS_PATH, 'r')
 
     positives = [x[:-1] for x in p.readlines()]
     negatives = [x[:-1] for x in n.readlines()]
@@ -48,13 +54,6 @@ def get_similar_words():
         similar_neg.update([x[0] for x in word_vectors.most_similar(positive=[w])] if w in word_vectors else [])
 
     return (similar_pos, similar_neg)
-
-
-# Load previously trained word vectors
-word_vectors = get_word_vectors('./model_data')
-
-# Get similar positive and negatice words
-similar_pos, similar_neg = get_similar_words()
 
 
 def create_dictionary(all_tokens):
@@ -94,12 +93,7 @@ def partition_data(data):
     y = np.asarray([x[1] for x in data])
     return (X, y)
 
-
-def main():
-    all_data = []
-    all_tokens = []
-    with open('preprocessed_data', 'rb') as f:
-        all_tokens, all_data = pickle.load(f)
+def get_dataset(all_tokens, all_data):
     vect_dict = create_dictionary(all_tokens)
     data = []
     for d in all_data:
@@ -109,10 +103,13 @@ def main():
             avg_vec = np.append(avg_vec, calc_negativity(d[0]))
             data.append((avg_vec, d[1]))
     shuffle(data)
-    (X, y) = partition_data(data)
-    with open('train_file', 'wb') as f:
-        pickle.dump((X, y), f)
+    return partition_data(data)
 
+def main():
+    with open(PREPROCESSED_TRAINING_FILE_PATH, 'rb') as f_read, open(DATASET_PATH, 'wb') as f_write:
+        all_tokens, all_data = pickle.load(f_read)
+        (X, y) = get_dataset(all_tokens, all_data)
+        pickle.dump((X, y), f_write)
 
 if __name__ == "__main__":
     start = time.time()
